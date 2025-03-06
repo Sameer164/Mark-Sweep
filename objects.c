@@ -1,10 +1,11 @@
 //
 // Created by Sameer on 3/1/25.
 //
-
 #include "objects.h"
+#include "gc.h"
 #include <stdlib.h>
 #include <string.h>
+
 
 int length(object_t* obj) {
     switch(obj->kind) {
@@ -21,16 +22,16 @@ int length(object_t* obj) {
     }
 }
 
-object_t* add(object_t *a, object_t *b) {
+object_t* add(gc_t* gc, object_t *a, object_t *b) {
     if (a == NULL || b == NULL) {
         return NULL;
     }
 
     if (a->kind == INTEGER) {
         if (b -> kind == INTEGER) {
-            return new_int(a->data.v_int + b->data.v_int);
+            return new_int(gc, a->data.v_int + b->data.v_int);
         } else if (b -> kind == FLOAT) {
-            return new_float(a->data.v_int + b->data.v_float);
+            return new_float(gc, a->data.v_int + b->data.v_float);
         } else {
             return NULL;
         }
@@ -38,9 +39,9 @@ object_t* add(object_t *a, object_t *b) {
 
     if (a->kind == FLOAT) {
         if (b -> kind == FLOAT) {
-            return new_float(a->data.v_float + b->data.v_float);
+            return new_float(gc, a->data.v_float + b->data.v_float);
         } else if (b -> kind == INTEGER) {
-            return new_float(a->data.v_float + b->data.v_int);
+            return new_float(gc, a->data.v_float + b->data.v_int);
         } else {
             return NULL;
         }
@@ -54,7 +55,7 @@ object_t* add(object_t *a, object_t *b) {
         char* string = (char*)calloc((new_str_len + 1), sizeof(char));
         strcat(string, a->data.v_string);
         strcat(string, b->data.v_string);
-        object_t * new_str = new_string(string);
+        object_t * new_str = new_string(gc, string);
         free(string);
         return new_str;
     }
@@ -63,7 +64,7 @@ object_t* add(object_t *a, object_t *b) {
         if (b->kind != ARRAY) {
             return NULL;
         }
-        object_t* new_arr = new_array(a->data.v_array.count + b->data.v_array.count);
+        object_t* new_arr = new_array(gc, a->data.v_array.count + b->data.v_array.count);
         for (int i = 0; i < a->data.v_array.count; i++) {
             set_arr(new_arr, i, get_arr(a, i));
         }
@@ -77,8 +78,8 @@ object_t* add(object_t *a, object_t *b) {
     return NULL;
 }
 
-object_t* new_int(int val) {
-    object_t* int_obj = (object_t*)malloc(sizeof(object_t));
+object_t* new_int(gc_t* gc, int val) {
+    object_t* int_obj = create_and_track(gc);
     if (int_obj == NULL) {
         return NULL;
     }
@@ -87,8 +88,8 @@ object_t* new_int(int val) {
     return int_obj;
 }
 
-object_t* new_float(float val) {
-    object_t* float_obj = (object_t*)malloc(sizeof(object_t));
+object_t* new_float(gc_t* gc, float val) {
+    object_t* float_obj = create_and_track(gc);
     if (float_obj == NULL) {
         return NULL;
     }
@@ -98,8 +99,8 @@ object_t* new_float(float val) {
 }
 
 
-object_t* new_bool(bool val) {
-    object_t* bool_obj = (object_t*)malloc(sizeof(object_t));
+object_t* new_bool(gc_t* gc, bool val) {
+    object_t* bool_obj = create_and_track(gc);
     if (bool_obj == NULL) {
         return NULL;
     }
@@ -108,8 +109,8 @@ object_t* new_bool(bool val) {
     return bool_obj;
 }
 
-object_t* new_string(char* val) {
-    object_t* string_obj = (object_t*)malloc(sizeof(object_t));
+object_t* new_string(gc_t* gc, char* val) {
+    object_t* string_obj = create_and_track(gc);
     if (string_obj == NULL) {
         return NULL;
     }
@@ -131,8 +132,8 @@ object_t* new_string(char* val) {
     return string_obj;
 }
 
-object_t* new_array(size_t capacity) {
-    object_t* array_obj = (object_t*)malloc(sizeof(object_t));
+object_t* new_array(gc_t* gc, size_t capacity) {
+    object_t* array_obj = create_and_track(gc);
     if (array_obj == NULL) {
         return NULL;
     }
@@ -186,3 +187,12 @@ object_t* get_arr(object_t* arr, int index) {
     return arr->data.v_array.elements[index];
 }
 
+
+object_t* create_and_track(gc_t* gc) {
+ object_t* obj = (object_t*)calloc(1, sizeof(object_t));
+ if (obj == NULL) {
+     return NULL;
+ }
+ gc_track_object(obj, gc);
+ return obj;
+}

@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "stack.h"
 
+typedef struct GarbageCollector gc_t;
 typedef struct Object object_t;
 
 typedef enum ObjectKind {
@@ -39,15 +40,15 @@ typedef struct Object {
 
 
 int length(object_t* obj);
-object_t* add(object_t *a, object_t *b);
-object_t* new_int(int val);
-object_t* new_float(float val);
-object_t* new_bool(bool val);
-object_t* new_string(char* val);
-object_t* new_array(size_t capacity);
+object_t* add(gc_t* gc, object_t *a, object_t *b);
+object_t* new_int(gc_t* gc, int val);
+object_t* new_float(gc_t* gc, float val);
+object_t* new_bool(gc_t* gc, bool val);
+object_t* new_string(gc_t* gc, char* val);
+object_t* new_array(gc_t* gc, size_t capacity);
 object_t* add_to_array(object_t* arr, object_t* obj);
 object_t* set_arr(object_t* arr, int index, object_t* obj);
 object_t* get_arr(object_t* arr, int index);
-
+object_t* create_and_track(gc_t* gc);
 
 #endif //_GC_FOR_C__OBJECTS_H
