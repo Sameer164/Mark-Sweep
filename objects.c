@@ -194,5 +194,22 @@ object_t* create_and_track(gc_t* gc) {
      return NULL;
  }
  gc_track_object(obj, gc);
+ obj->is_marked = true;
  return obj;
+}
+
+void free_object(object_t* obj) {
+    switch (obj->kind) {
+        case INTEGER:
+        case FLOAT:
+        case BOOL:
+            break;
+        case STRING:
+            free(obj->data.v_string);
+            break;
+        case ARRAY:
+            free(obj->data.v_array.elements); // Again, this only frees the pointer to the elements array.
+            break;
+    }
+    free(obj);
 }

@@ -36,6 +36,7 @@ typedef union ObjectData {
 typedef struct Object {
     object_kind_t kind;
     object_data_t data;
+    bool is_marked;
 } object_t;
 
 
@@ -50,5 +51,6 @@ object_t* add_to_array(object_t* arr, object_t* obj);
 object_t* set_arr(object_t* arr, int index, object_t* obj);
 object_t* get_arr(object_t* arr, int index);
 object_t* create_and_track(gc_t* gc);
+void free_object(object_t* obj);
 
 #endif //_GC_FOR_C__OBJECTS_H

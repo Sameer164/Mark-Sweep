@@ -63,6 +63,7 @@ void test_object_equal(object_t* obj1, object_t* obj2) {
 void test_int_object() {
     gc_t* gc = new_gc();
     object_t* obj = new_int(gc, 1);
+    test_object_equal(obj, gc->objects->data[0]);
     munit_assert_true(obj->kind == INTEGER);
     munit_assert_int(obj->data.v_int, ==, 1);
 }
@@ -70,6 +71,7 @@ void test_int_object() {
 void test_float_object() {
     gc_t* gc = new_gc();
     object_t* obj = new_float(gc, (float)1.0);
+    test_object_equal(obj, gc->objects->data[0]);
     munit_assert_true(obj->kind == FLOAT);
     munit_assert_int(obj->data.v_float, ==, 1.0);
 }
@@ -77,10 +79,12 @@ void test_float_object() {
 void test_bool_object() {
     gc_t* gc = new_gc();
     object_t* obj = new_bool(gc, true);
+    test_object_equal(obj, gc->objects->data[0]);
     munit_assert_true(obj->kind == BOOL);
     munit_assert_true(obj->data.v_bool);
 
     obj = new_bool(gc, false);
+    test_object_equal(obj, gc->objects->data[1]);
     munit_assert_true(obj->kind == BOOL);
     munit_assert_false(obj->data.v_bool);
 }
@@ -89,6 +93,7 @@ void test_string_object() {
     gc_t* gc = new_gc();
     char* test_str = "hellllllo";
     object_t* obj = new_string(gc, test_str);
+    test_object_equal(obj, gc->objects->data[1]);
     munit_assert_true(obj->kind == STRING);
     munit_assert_true(strcmp(test_str, obj->data.v_string)==0);
 }
@@ -97,10 +102,12 @@ void test_string_object() {
 void test_array_object() {
     gc_t* gc = new_gc();
     object_t* obj = new_array(gc, 8);
+
     munit_assert_true(obj->kind == ARRAY);
     munit_assert_true(obj->data.v_array.capacity == 8);
     munit_assert_true(obj->data.v_array.count == 0);
     munit_assert_not_null(obj->data.v_array.elements);
+    test_object_equal(obj, gc->objects->data[1]);
 }
 
 void test_length_int() {
